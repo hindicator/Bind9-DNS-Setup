@@ -1,0 +1,24 @@
+$TTL 3600
+@       IN      SOA     hostmaster.example.com. gal.example.com. (
+                        21          ; Serial
+                        3600        ; Refresh
+                        600         ; Retry
+                        1209600     ; Expire
+                        3600 )      ; Negative Cache TTL
+;
+;       Name server
+;
+;       You can add another DNS here for segmentation
+; Example :     blackhole   IN  NS  192.168.2.254
+; Note : you may want to use astrix or 
+; create a new db file for 192.168.2.x and configure it as a slave zone in named.conf.local file
+@		        IN      NS      hostmaster.example.com.
+hostmaster		IN      A       192.168.1.254
+;
+;       Addresses point to canonical name
+;
+1               IN      PTR     router.example.com.
+100             IN      PTR     nas.example.com.
+150             IN      PTR     vmware.example.com.
+254             IN      PTR     hostmaster.example.com.
+; CNAMES CAN BE ADDED HERE TOO

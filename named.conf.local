@@ -1,0 +1,33 @@
+//
+// Do any local configuration here
+//
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+
+acl my_localnets {
+       127.0.0.0/8;        // localhost (RFC 3330) - Loopback-Device addresses    127.0.0.0 - 127.255.255.255  
+       192.168.1.0/24;     // Private Network (RFC 1918) - e. e. LAN              192.168.0.0 - 192.168.255.255 
+//     10.0.0.0/8;         // Private Network (RFC 1918) - e. g. VPN              10.0.0.0 - 10.255.255.255
+};
+
+zone "example.com" {
+    type master;
+    file "/etc/bind/db.example.com";
+    // Possible option are :
+    // allow-update { my_localnets; };      // Since this is the primary DNS, it should be none.
+    // allow-transfer { my_localnets; };    //Allow Transfer of zone from the master server
+    // allow-notify { my_localnets; };      //Notify slave for zone changes
+};
+// Reverse dns
+// Same configuration as above can applied here too.
+zone "1.168.192.in-addr.arpa" {
+    type master;
+    file "/etc/bind/db.192.168.1";
+};
+//  zone "sub.example.com" {
+    //  type slave; //Secondary Slave DNS
+    //  file "/etc/bind/db.sub.example.com";    //Forward Zone Cache file
+    //  masters { 192.168.1.254; }; //Master Server IP
+//  };
