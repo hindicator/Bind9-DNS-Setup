@@ -22,6 +22,7 @@ printf "Please enter your domain name : \n"
 read -r DOMAIN
 printf "Please enter you local ip :\nExample : 192.168.1 or 10.0.0\n"
 read -r LOCALNET
+rLocalnet=$(echo $LOCALNET | rev)
 cat > /etc/bind/db.$DOMAIN << EOF
 $TTL 3600
 @       IN      SOA     hostmaster.$DOMAIN. admin.$DOMAIN. (
@@ -103,7 +104,7 @@ if [ "$Answer" == "y" ]; then
         // allow-transfer { my_localnets; };    //Allow Transfer of zone from the master server
         // allow-notify { my_localnets; };      //Notify slave for zone changes
     };
-    zone "1.168.192.in-addr.arpa" {
+    zone "$rLocalnet.in-addr.arpa" {
         type master;
         file "/etc/bind/db.$LOCALNET";
     };

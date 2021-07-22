@@ -17,7 +17,7 @@ cd /etc/bind/
 * Add the db.example.com file and db.192.168.1 file 
     * Incase your local net is 10.0.0.x make sure to change IP's in all files.
     * And in my_localnets VAR on named.conf.options
-    * db.192.168.1 also refer as reverse dns aka rDNS
+    * db.192.168.1 also refer as reverse dns or rDNS
 * Change the example.com for your local domain
 * Make sure to set Manual IPv4 for the machine(192.168.1.254 in our example) and even disable IPv6.
 
@@ -51,7 +51,7 @@ sudo rndc restart
 ```
 git clone https://github.com/hindicator/Bind9-DNS-Server-Setup.git
 cd Bind9-DNS-Server-Setup
-sudo bash setup.sh
+sudo ./setup.sh
 You'll be promped to enter - Domain & localnet values
 Example -
 Enter domain : google.com
