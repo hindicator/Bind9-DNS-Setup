@@ -66,4 +66,4 @@ nslookup example.com
 sudo named-checkzone example.com /etc/bind/db.example.com
 ```
 
-## You can find information in the configuration files about more manipulations
+## You can find information in the configuration files for more manipulations
