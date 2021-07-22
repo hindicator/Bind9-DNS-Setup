@@ -4,8 +4,10 @@ printf "Updating packages\n"
 sudo apt update && apt upgrade -y
 State=0
 printf "The following packages are going to install : bind9, bind9utils, bind9-doc, dnsutils\n"
-printf "Do you agree ? (y/N)"
+printf "Do You agree ? (y/N)"
 read Answer
+
+
 
 if [ "$Answer" == "y" ]; then
     sudo apt install bind9 bind9utils bind9-doc dnsutils -y
