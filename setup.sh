@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 printf "Updating packages\n"
 sudo apt update && apt upgrade -y
