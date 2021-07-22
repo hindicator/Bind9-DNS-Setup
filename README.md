@@ -1,7 +1,9 @@
 # Bind9 - DNS Server Setup
 
-## Enviroment
-* I'm using debian but it very much the same.
+# About Bind9
+* Bind9 is an official package by ISC organization,
+* This package rule is to convert hostnames to IP addresses and IP to hostname.
+** I'm using Debian
 
 ### Install Bind9:
 ```
@@ -23,6 +25,7 @@ cd /etc/bind/
 
 # Enviroments settings
 ```
+sudo echo "nameserver 127.0.0.1" >> /etc/resolv.conf
 sudo echo "nameserver 192.168.1.254" >> /etc/resolv.conf
 sudo echo "search example.com" >> /etc/resolv.conf
 ```

@@ -1,58 +1,28 @@
 #!/usr/bin/env bash
 
-ask() {
-    local prompt default reply
-    if [[ ${2:-} = 'Y' ]]; then
-        prompt='Y/n'
-        default='Y'
-    elif [[ ${2:-} = 'N' ]]; then
-        prompt='y/N'
-        default='N'
-    else
-        prompt='y/n'
-        default=''
-    fi
-
-    while true; do
-        # Ask the question (not using "read -p" as it uses stderr not stdout)
-        echo -n "$1 [$prompt] "
-        # Read the answer (use /dev/tty in case stdin is redirected from somewhere else)
-        read -r reply </dev/tty
-        # Default?
-        if [[ -z $reply ]]; then
-            reply=$default
-        fi
-
-        # Check if the reply is valid
-        case "$reply" in
-            Y*|y*) return 0 ;;
-            N*|n*) return 1 ;;
-        esac
-    done
-}
-STATE=0
 printf "Updating packages\n"
 sudo apt update && apt upgrade -y
-
+State=0
 printf "The following packages are going to install : bind9, bind9utils, bind9-doc, dnsutils\n"
-if ask "Do you agree ?"; then
+printf "Do you agree ? (y/N)"
+read Answer
+
+if [ "$Answer" == "y" ]; then
     sudo apt install bind9 bind9utils bind9-doc dnsutils -y
-    $STATE=1
     printf "Everything installed successfully and up to date\n"
+    $State=1
 else
     printf "Creating files on /etc/bind directory, if dir not exist,\nCreating a new one automatically\n"
     mkdir -p /etc/bind/
 fi
 
-sleep 2
-clear
 printf "Please enter your domain name : \n"
 read -r DOMAIN
 printf "Please enter you local ip :\nExample : 192.168.1 or 10.0.0\n"
 read -r LOCALNET
-cat << EOF > /etc/bind/db.$DOMAIN
+cat > /etc/bind/db.$DOMAIN << EOF
 $TTL 3600
-@       IN      SOA     hostmaster.$DOMAIN. gal.$DOMAIN. (
+@       IN      SOA     hostmaster.$DOMAIN. admin.$DOMAIN. (
                     20          ; Serial
                     3600        ; Refresh
                     600         ; Retry
@@ -78,9 +48,9 @@ mongo               IN  CNAME   website
 EOF
 printf "db.$DOMAIN was created at /etc/bind/~.\n"
 
-cat << EOF > /etc/bind/db.$LOCALNET
+cat > /etc/bind/db.$LOCALNET << EOF
 $TTL 3600
-@       IN      SOA     hostmaster.$DOMAIN. gal.$DOMAIN. (
+@       IN      SOA     hostmaster.$DOMAIN. admin.$DOMAIN. (
                         21          ; Serial
                         3600        ; Refresh
                         600         ; Retry
@@ -105,8 +75,9 @@ hostmaster		IN      A       $LOCALNET.254
 ; CNAMES CAN BE ADDED HERE TOO
 EOF
 printf "db.$LOCALNET was created at /etc/bind/~\n"
-
-if ask "Would you like to replace the current configuration for named.conf.local ?"; then
+printf "Would you like to replace the current configuration for named.conf.local ?(y/N)"
+read Answer
+if [ "$Answer" == "y" ]; then
     cat > /etc/bind/named.conf.local << EOF
     //
     // Do any local configuration here
@@ -132,17 +103,18 @@ if ask "Would you like to replace the current configuration for named.conf.local
     };
     zone "1.168.192.in-addr.arpa" {
         type master;
-        file "/etc/bind/db.192.168.1";
+        file "/etc/bind/db.$LOCALNET";
     };
     //  zone "sub.example.com" {
         //  type slave; //Secondary Slave DNS
         //  file "/etc/bind/db.sub.example.com";    //Forward Zone Cache file
-        //  masters { 192.168.1.254; }; //Master Server IP
+        //  masters { $LOCALNET.254; }; //Master Server IP
     //  };
 EOF
 fi
-
-if ask "Would you like to replace to current named.conf.options file ?"; then
+printf "Would you like to replace to current named.conf.options file ?"
+read Answer
+if [ "$Answer" == "y" ]; then
     cat << EOF > /etc/bind/named.conf.options
     /*
     * You might put in here some ips which are allowed to use the cache or
@@ -327,37 +299,19 @@ if ask "Would you like to replace to current named.conf.options file ?"; then
 EOF
 fi
 
-clear
-printf "named.conf.local was created successfully\n"
 printf "All configuration are successfully deployed with\nDomain as $DOMAIN\nLocalnet as $LOCALNET.x\n"
 printf "You can look at the configuration files for more information on subnet tunneling, etc..\n"
 
 if [ $STATE == 1 ]; then
     sudo systemctl enable bind9
+else
+    printf "please run the following command to automatically run bind9 on boot\nsystemctl enable bind9"
 fi
 
-
-function ProgressBar {
-    let _progress=(${1}*100/${2}*100)/100
-    let _done=(${_progress}*4)/10
-    let _left=40-$_done
-    _fill=$(printf "%${_done}s")
-    _empty=$(printf "%${_left}s")
-printf "\rProgress : [${_fill// /#}${_empty// /-}] ${_progress}%%"
-
-}
-_start=1
-_end=100
-for number in $(seq ${_start} ${_end})
-do
-    sleep 0.1
-    ProgressBar ${number} ${_end}
-done
 clear
 printf "Reboot is needed to apply the configuration.\nWould you like to reboot now ? (y/N)"
 
 read Answer
 if [ "$Answer" == "y" ]; then 
-    echo "Rebooting"
-    # sudo reboot
+    sudo reboot
 fi
