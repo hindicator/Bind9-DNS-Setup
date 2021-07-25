@@ -3,7 +3,7 @@
 # About Bind9
 * Bind9 is an official package by ISC organization,
 * This package rule is to convert hostnames to IP addresses and IP to hostname.
-** I'm using Debian
+* I'm using Debian
 
 ### Install Bind9:
 ```
